@@ -25,6 +25,14 @@
 
 /* Tipos de Dados */
 
+struct Reservation{
+	char *id;
+	int nPassengers;
+	char flightID[MAX_FLIGHT_ID];
+	int flightDate;
+	struct Reservation *next;
+};
+
 typedef struct {
 	char id[MAX_AIRPORT_ID];
 	char country[MAX_AIRPORT_COUNTRY];
@@ -43,6 +51,8 @@ typedef struct {
 	int duration;
 	int capacity;
 	int occupied;
+    struct Reservation **reservations;
+    int reservationsAmount;
 } Flight;
 
 /* Funcoes leitura */

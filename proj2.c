@@ -13,6 +13,7 @@
 
 /* Data types */
 
+/* Struct representing a flight reservation, inputted by the user. */
 typedef struct {
 	char *id;
 	int nPassengers;
@@ -20,32 +21,31 @@ typedef struct {
 	int flightDate;
 } Reservation;
 
-/* Malloc and realloc functions */
-
+/* Custom malloc and realloc functions, to detect "No memory." error. */
 void* cMalloc(int size) {
 	void *ptr = malloc(size);
-	if(ptr == NULL) {
+	if(ptr == NULL && size != 0) {
 		printf("No memory.");
 		exit(0);
 	}
 	return ptr;
 }
-
 
 void* cRealloc(void* ptr, int size) {
 	ptr = realloc(ptr, size);
-	if(ptr == NULL) {
+	if(ptr == NULL && size != 0) {
 		printf("No memory.");
 		exit(0);
 	}
 	return ptr;
 }
 
-/* Sorting algorithm BubbleSort */
+/* Receives two reservations, and compares their reservation code. */
+int cmpReservations(Reservation a, Reservation b) {
+	return (strcmp(a.id, b.id) > 0);
+}
 
-int cmpReservations(Reservation a, Reservation b);
-
-
+/* Bubble sort algorithm, used for sorting a dynamic array of reservations. */
 Reservation* bubbleSortReservations(Reservation *tempReservations, int size) {
 	int i, j, done;
 	Reservation aux;
@@ -65,13 +65,8 @@ Reservation* bubbleSortReservations(Reservation *tempReservations, int size) {
 	return tempReservations;
 }
 
-/* Reservation functions */
-
-int cmpReservations(Reservation a, Reservation b) {
-	return (strcmp(a.id, b.id) > 0);
-}
-
-
+/* Receives a char array, and checks whether it's a valid reservation code. 
+Returning TRUE if it is, FALSE if it is not. */
 int validateReservationID(char id[]) {
 	int i = 0, len = strlen(id);
 
@@ -85,7 +80,9 @@ int validateReservationID(char id[]) {
 	return TRUE;
 }
 
-
+/* Receives a reservation code, the list of reservations and the current amount
+of reservations, returning the position of the reservation with the code received,
+or ERROR, if none was found. */
 int findReservation(char id[], Reservation *reservations, int reservationIterator) {
 	int i = 0;
 
@@ -97,7 +94,10 @@ int findReservation(char id[], Reservation *reservations, int reservationIterato
 	return ERROR;
 }
 
-
+/* Receives a dynamic array of reservations and its dize, a flight code and date,
+the list of reservations and the current amount of reservations, and returns
+a dynamic array with all of the reservations that belong to the flight with the
+given flight date and code. */
 Reservation* findReservationFromFlight(Reservation *tempReservations, char id[],
  int d, int *size, Reservation reservations[], int reservationIterator) {
 	int i = 0;
@@ -122,7 +122,9 @@ Reservation* findReservationFromFlight(Reservation *tempReservations, char id[],
 	return tempReservations;
 }
 
-
+/* Receives a reservation inputted my the user and checkes for different errors
+in their input. If none is found, it returns TRUE, otherwise it'll print the 
+corresponding error and return FALSE. */
 int validateReservation(Reservation r, Reservation *reservations,
  int reservationIterator, Flight flights[], int flightIterator, int currentDate) {
 	int flightIndex = findFlight(r.flightID, r.flightDate, flights, flightIterator);
@@ -144,7 +146,9 @@ int validateReservation(Reservation r, Reservation *reservations,
 	return FALSE;
 }
 
-
+/* Similarly to the previous function, this one checks for errors in the user's
+input as well, but only for those related to printing reservations, and not
+adding one. */
 int validateListReservation(char id[], int d, Flight flights[],
  int flightIterator, int currentDate) {
 	if (findFlight(id, d, flights, flightIterator) == ERROR)
@@ -156,7 +160,8 @@ int validateListReservation(char id[], int d, Flight flights[],
 	return FALSE;
 }
 
-
+/* Receives a reservation, the current list of reservations and its size, adding
+the received reservation to the list, and increasing the size. */
 Reservation* createReservation(Reservation r, Reservation *reservations,
  int *reservationIterator) {
 	if(*reservationIterator%REALLOC_INTERVAL == 0) 
@@ -173,7 +178,8 @@ Reservation* createReservation(Reservation r, Reservation *reservations,
 	return reservations;
 }
 
-
+/* Receives a flight code and date, the list of reservation and its size, printing
+and sorting all reservations related to the flight found with that code and date. */
 void listReservations(char id[], int d, Reservation *reservations,
  int reservationIterator) {
 	Reservation *tempReservations = cMalloc(sizeof(Reservation));
@@ -194,7 +200,8 @@ void listReservations(char id[], int d, Reservation *reservations,
 	free(tempReservations);
 }
 
-
+/* Reads the user's input, to detect whether they want to list or to add a reservation,
+and calls the related functions to do so. */
 Reservation* addListReservations(Reservation *reservations,
  int *reservationIterator, Flight flights[], int flightIterator, int currentDate) {
 	Reservation r;
@@ -225,7 +232,10 @@ Reservation* addListReservations(Reservation *reservations,
 	return reservations;
 }
 
-
+/* Receives an index, the list of reservations, its size, the array of flights
+and its size as well, returning a new list of reservation, removing the one at
+the index given as an argument, while also decreasing the occupied amount in the
+related flight. */
 Reservation* removeReservation(int index, int *amount, Reservation *reservations,
  int *reservationIterator, Flight flights[], int flightIterator) {
 	int i, flightIndex;
@@ -242,7 +252,10 @@ Reservation* removeReservation(int index, int *amount, Reservation *reservations
 	return reservations;
 }
 
-
+/* Receives a flight id, the array of flights, its size, the list of reservations
+and its size as well, returning a new list of reservations and modifying the array
+of flights, removing all flights with the given flight id, and all reservations 
+related to them. */
 Reservation* removeFlight(char id[], Flight *flights, int *flightIterator, int *flightRemoveAmount,
  Reservation *reservations, int *reservationIterator, int *reservationRemoveAmount) {
 	int i = 0;
@@ -269,7 +282,9 @@ Reservation* removeFlight(char id[], Flight *flights, int *flightIterator, int *
 	return reservations;
 }
 
-
+/* Reads the user's input, deleting any flight or reservation that has the code
+that's given by the user, or prints "not found" if neither no flight or reservation
+was deleted, since none was found. */
 Reservation* removeFlightsReservation(Reservation *reservations, int *reservationIterator,
  Flight flights[], int *flightIterator) {
 	char temp[MAX_COMMAND_SIZE+1], *id;
@@ -298,7 +313,7 @@ Reservation* removeFlightsReservation(Reservation *reservations, int *reservatio
 	return reservations;
 }
 
-
+/* Receives the list of reservations and its size, freeing all of its elements. */
 void destroy(Reservation *reservations, int reservationIterator) {
 	int i = 0;
 

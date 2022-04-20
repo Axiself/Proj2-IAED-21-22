@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "proj1.h"
+#include "proj1v2.h"
 
 /* Funcoes Leitura */
 
@@ -381,6 +381,8 @@ void createFlight(Flight v, Flight flights[], int *flightIterator) {
 	flights[*flightIterator].arrivalDate = arrivalDate;
 	flights[*flightIterator].arrivalTime = arrivalTime;
 	flights[*flightIterator].occupied = 0;
+    
+    flights[*flightIterator].reservationsAmount = 0;
 	*flightIterator += 1;
 }
 
